@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regal Notepad++</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Clean IT Code Vibe Background (Black & Red) */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000000; /* Pure black */
+            color: #dc143c; /* Crimson red */
+            font-family: 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+        }
+        .kingdom-bg {
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #000000 0%, #1a0000 100%); /* Subtle dark red gradient */
+            animation: cinematicFadeIn 2s ease-in-out; /* Cinematic fade-in */
+        }
+        @keyframes cinematicFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: rgba(0, 0, 0, 0.95); /* Near-black for clean look */
+            padding: 30px;
+            border-radius: 0; /* Clean, no curves */
+            border: 1px solid #8b0000; /* Thin dark red border */
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.3); /* Subtle red glow */
+            animation: slideIn 1.5s ease-out; /* Cinematic slide-in */
+        }
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .title {
+            font-size: 2em;
+            color: #ff0000; /* Bright red for emphasis */
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: glow 3s infinite alternate; /* Cinematic glow */
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #dc143c; }
+            to { text-shadow: 0 0 20px #ff0000; }
+        }
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-regal {
+            padding: 10px 15px;
+            background: #000000;
+            color: #dc143c;
+            border: 1px solid #8b0000;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.5s ease; /* Smooth cinematic transition */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-regal:hover {
+            background: #1a0000;
+            color: #ff0000;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); /* Dramatic red glow */
+            transform: translateY(-3px); /* Subtle lift */
+        }
+        /* Editor */
+        #editor {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #8b0000;
+            padding: 15px;
+            font-size: 14px;
+            background: #000000;
+            color: #dc143c;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.5s ease; /* Cinematic focus */
+        }
+        #editor:focus {
+            border-color: #ff0000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+        /* Status */
+        .status {
+            margin-top: 15px;
+            font-size: 12px;
+            text-align: center;
+            opacity: 0.8;
+            animation: fadeIn 2s ease-in; /* Cinematic status fade */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 0.8; }
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                align-items: center;
+            }
+            .title {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="kingdom-bg">
+        <div class="container">
+            <h1 class="title">Regal Notepad++</h1>
+            <div class="toolbar">
+                <button id="newFile" class="btn-regal">New Scroll</button>
+                <button id="openFile" class="btn-regal">Open Tome</button>
+                <button id="saveFile" class="btn-regal">Save Decree</button>
+                <button id="saveAs" class="btn-regal">Save As Edict</button>
+                <button id="saveToServer" class="btn-regal">Save to Vault</button>
+            </div>
+            <textarea id="editor" placeholder="> Inscribe your royal thoughts here..."></textarea>
+            <div class="status">> The throne awaits your command.</div>
+        </div>
+    </div>
+    <input type="file" id="fileInput" style="display: none;" accept=".txt">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const editor = document.getElementById('editor');
+            const newBtn = document.getElementById('newFile');
+            const openBtn = document.getElementById('openFile');
+            const saveBtn = document.getElementById('saveFile');
+            const saveAsBtn = document.getElementById('saveAs');
+            const saveServerBtn = document.getElementById('saveToServer');
+            const fileInput = document.getElementById('fileInput');
+            const status = document.querySelector('.status');
+
+            let currentFileName = 'royal-decree.txt';
+
+            // Load from localStorage on page load
+            const savedText = localStorage.getItem('regalNotepadContent');
+            if (savedText) {
+                editor.value = savedText;
+                status.textContent = '> Your decree has been restored from the archives.';
+                playSound('harp-open.wav');
+            }
+
+            // Auto-save to localStorage on input
+            editor.addEventListener('input', () => {
+                localStorage.setItem('regalNotepadContent', editor.value);
+                status.textContent = '> Inscribed in the royal ledger.';
+            });
+
+            // Play sound function
+            function playSound(file) {
+                try {
+                    const audio = new Audio(`sounds/${file}`);
+                    audio.volume = 0.5;
+                    audio.play();
+                } catch (e) {
+                    // Ignore if sound fails
+                }
+            }
+
+            // New File
+            newBtn.addEventListener('click', () => {
+                if (confirm('> Abandon this scroll?')) {
+                    editor.value = '';
+                    localStorage.removeItem('regalNotepadContent');
+                    currentFileName = 'royal-decree.txt';
+                    status.textContent = '> A new parchment awaits.';
+                    playSound('harp-new.wav');
+                }
+            });
+
+            // Open File
+            openBtn.addEventListener('click', () => {
+                fileInput.click();
+                playSound('harp-open.wav');
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        editor.value = e.target.result;
+                        currentFileName = file.name;
+                        localStorage.setItem('regalNotepadContent', editor.value);
+                        status.textContent = `> Tome "${file.name}" opened in the hall.`;
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+            // Save File (Download)
+            saveBtn.addEventListener('click', () => {
+                const blob = new Blob([editor.value], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = currentFileName;
+                a.click();
+                URL.revokeObjectURL(url);
+                status.textContent = `> Decree "${currentFileName}" sealed and delivered.`;
+                playSound('harp-save.wav');
+            });
+
+            // Save As (Prompt for name and download)
+            saveAsBtn.addEventListener('click', () => {
+                const name = prompt('> Name your edict:', currentFileName);
+                if (name) {
+                    currentFileName = name;
+                    saveBtn.click();
+                }
+            });
+
+            // Save to Server (Optional - requires backend)
+            saveServerBtn.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('http://localhost:3001/api/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: editor.value, filename: currentFileName })
+                    });
+                    if (response.ok) {
+                        status.textContent = '> Stored in the royal vault.';
+                        playSound('harp-save.wav');
+                    } else {
+                        status.textContent = '> The vault rejected your decree.';
+                    }
+                } catch (err) {
+                    status.textContent = '> Shadows obscure the vault.';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
